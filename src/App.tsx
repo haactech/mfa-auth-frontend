@@ -98,7 +98,6 @@ function App() {
         <div className="mfa-container">
           <h2>Two-Factor Authentication</h2>
           <MFAVerification
-            sessionId={authState.sessionId || ''}
             onVerificationSuccess={handleMFASuccess}
           />
         </div>

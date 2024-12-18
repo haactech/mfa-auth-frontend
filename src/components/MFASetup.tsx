@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { authService } from '../services/authService';
-import './MFASetup.css'
 
 interface MFASetupProps {
   onSetupComplete: () => void;
@@ -16,6 +15,7 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onSetupComplete, onSetupCanc
   const [error, setError] = useState('');
   const [showManualKey, setShowManualKey] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   useEffect(() => {
     const fetchSetupData = async () => {
@@ -35,13 +35,23 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onSetupComplete, onSetupCanc
   const handleVerification = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsVerifying(true);
 
     try {
-      // Aquí iría la llamada a la verificación del código MFA
-      // await authService.verifyMFASetup(verificationCode);
-      onSetupComplete();
+      const isVerified = await authService.verifyMFA(verificationCode);
+      if (isVerified) {
+        onSetupComplete();
+      } else {
+        setError('Invalid verification code');
+      }
     } catch (err) {
-      setError('Invalid verification code');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Verification failed. Please try again.');
+      }
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -70,6 +80,7 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onSetupComplete, onSetupCanc
           </div>
           
           <button 
+            type="button"
             className="manual-key-toggle"
             onClick={() => setShowManualKey(!showManualKey)}
           >
@@ -92,25 +103,31 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onSetupComplete, onSetupCanc
             <input
               type="text"
               value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
+              onChange={(e) => setVerificationCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
               placeholder="Enter 6-digit code"
               maxLength={6}
               pattern="[0-9]*"
               inputMode="numeric"
               required
               className="verification-input"
+              disabled={isVerifying}
             />
             
             {error && <div className="error-message">{error}</div>}
             
             <div className="mfa-setup-actions">
-              <button type="submit" className="verify-button">
-                Verify & Enable
+              <button 
+                type="submit" 
+                className="verify-button"
+                disabled={isVerifying || verificationCode.length !== 6}
+              >
+                {isVerifying ? 'Verifying...' : 'Verify & Enable'}
               </button>
               <button 
                 type="button" 
                 onClick={onSetupCancel}
                 className="cancel-button"
+                disabled={isVerifying}
               >
                 Cancel
               </button>

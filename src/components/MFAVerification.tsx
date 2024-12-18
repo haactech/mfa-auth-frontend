@@ -3,21 +3,24 @@ import { authService } from '../services/authService';
 import { AuthResponse } from '../types/auth';
 
 interface MFAVerificationProps {
-  sessionId: string;
   onVerificationSuccess: (response: AuthResponse) => void;
 }
 
-export const MFAVerification = ({ sessionId, onVerificationSuccess }: MFAVerificationProps) => {
+export const MFAVerification = ({ onVerificationSuccess }: MFAVerificationProps) => {
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
-      const response = await authService.verifyMFA(token, sessionId);
+      const response = await authService.verifyMFA(token);
       onVerificationSuccess(response);
     } catch (err) {
       setError('Invalid verification code');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -34,10 +37,13 @@ export const MFAVerification = ({ sessionId, onVerificationSuccess }: MFAVerific
           pattern="[0-9]*"
           inputMode="numeric"
           maxLength={6}
+          disabled={isLoading}
         />
       </div>
       {error && <div className="error-message">{error}</div>}
-      <button type="submit">Verify</button>
+      <button type="submit" disabled={isLoading}>
+        {isLoading ? 'Verifying...' : 'Verify'}
+      </button>
     </form>
   );
 };
