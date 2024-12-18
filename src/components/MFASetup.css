@@ -1,0 +1,105 @@
+/* Add these styles to your auth.css file */
+
+.mfa-setup-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .mfa-setup-loading,
+  .mfa-setup-error {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+  
+  .mfa-setup-steps {
+    margin-top: 20px;
+  }
+  
+  .mfa-setup-step {
+    margin-bottom: 30px;
+  }
+  
+  .qr-code-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    display: inline-block;
+    margin: 15px 0;
+  }
+  
+  .qr-code-image {
+    display: block;
+    max-width: 200px;
+    height: auto;
+  }
+  
+  .manual-key-toggle {
+    background: none;
+    border: none;
+    color: #0066cc;
+    padding: 5px 0;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .manual-key-section {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 4px;
+  }
+  
+  .manual-key {
+    display: block;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: monospace;
+    margin-top: 5px;
+  }
+  
+  .verification-form {
+    margin-top: 15px;
+  }
+  
+  .verification-input {
+    width: 200px;
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+  }
+  
+  .mfa-setup-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .verify-button,
+  .cancel-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .verify-button {
+    background: #0066cc;
+    color: white;
+  }
+  
+  .cancel-button {
+    background: #f5f5f5;
+    color: #333;
+  }
+  
+  .error-message {
+    color: #dc3545;
+    margin: 10px 0;
+    font-size: 14px;
+  }
