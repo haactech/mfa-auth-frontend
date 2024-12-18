@@ -1,4 +1,4 @@
-import { AuthResponse, LoginCredentials, MFASetupResponse } from "../types/auth";
+import { AuthResponse, LoginCredentials, MFAVerificationRequest, MFASetupResponse } from "../types/auth";
 
 const API_URL = "http://localhost:8000/api";
 
@@ -48,7 +48,7 @@ const saveTokens = (tokens: { access: string; refresh: string }) => {
 
 export const authService = {
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
-        // Primero obtenemos el token CSRF
+        // Obtener token CSRF
         await fetchCsrfToken();
         
         const response = await fetch(`${API_URL}/auth/login/`, {
@@ -65,29 +65,35 @@ export const authService = {
 
         const data = await response.json();
         
-        if (data.tokens && !data.requires_mfa) {
+        // Si no requiere MFA, guardar tokens
+        if (!data.requires_mfa && data.tokens) {
             saveTokens(data.tokens);
+        } else if (data.session_id) {
+            // Guardar session_id para verificación MFA
+            localStorage.setItem('mfa_session_id', data.session_id);
         }
 
         return data;
     },
 
     async verifyMFA(token: string): Promise<AuthResponse> {
-        const sessionId = this.getToken()
+        const sessionId = localStorage.getItem('mfa_session_id');
+        if (!sessionId) {
+            throw new Error('No MFA session found');
+        }
+
+        const verificationData: MFAVerificationRequest = {
+            token,
+            session_id: sessionId,
+            device_info: {
+                user_agent: navigator.userAgent
+            }
+        };
 
         const response = await fetch(`${API_URL}/auth/verify-mfa/`, {
             method: "POST",
-            headers: {
-                ...getHeaders(),
-                'Authorization': `Bearer ${sessionId}`
-            },
-            body: JSON.stringify({
-                token,
-                request_meta: {
-                    REMOTE_ADDR: window.location.hostname,
-                    HTTP_USER_AGENT: navigator.userAgent
-                }
-            }),
+            headers: getHeaders(),
+            body: JSON.stringify(verificationData),
             credentials: 'include'
         });
 
@@ -100,6 +106,7 @@ export const authService = {
         
         if (data.tokens) {
             saveTokens(data.tokens);
+            localStorage.removeItem('mfa_session_id');
         }
 
         return data;
@@ -119,6 +126,22 @@ export const authService = {
         return response.json();
     },
 
+    async verifyMFASetup(verificationCode: string): Promise<MFASetupResponse> {
+        const response = await fetch(`${API_URL}/auth/setup-mfa/`, {
+            method: "POST",
+            headers: getHeaders(true),
+            body: JSON.stringify({ verification_code: verificationCode }),
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "MFA setup verification failed");
+        }
+
+        return response.json();
+    },
+
     getToken(): string | null {
         return localStorage.getItem('access_token');
     },
@@ -130,5 +153,6 @@ export const authService = {
     logout(): void {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        localStorage.removeItem('mfa_session_id');
     }
 };

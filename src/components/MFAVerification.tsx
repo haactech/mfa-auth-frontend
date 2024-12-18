@@ -14,36 +14,48 @@ export const MFAVerification = ({ onVerificationSuccess }: MFAVerificationProps)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
+
     try {
       const response = await authService.verifyMFA(token);
       onVerificationSuccess(response);
     } catch (err) {
-      setError('Invalid verification code');
+      setError(err instanceof Error ? err.message : 'Verification failed');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mfa-form">
-      <div className="form-group">
-        <label htmlFor="token">Enter Verification Code</label>
-        <input
-          type="text"
-          id="token"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          required
-          pattern="[0-9]*"
-          inputMode="numeric"
-          maxLength={6}
-          disabled={isLoading}
-        />
-      </div>
-      {error && <div className="error-message">{error}</div>}
-      <button type="submit" disabled={isLoading}>
-        {isLoading ? 'Verifying...' : 'Verify'}
-      </button>
-    </form>
+    <div className="mfa-verification-container">
+      <h2>Two-Factor Authentication Required</h2>
+      <p>Please enter the verification code from your authenticator app.</p>
+      
+      <form onSubmit={handleSubmit} className="mfa-form">
+        <div className="form-group">
+          <input
+            type="text"
+            value={token}
+            onChange={(e) => setToken(e.target.value.replace(/[^0-9]/g, ''))}
+            maxLength={6}
+            pattern="\d{6}"
+            required
+            placeholder="Enter 6-digit code"
+            disabled={isLoading}
+            className="verification-input"
+          />
+        </div>
+        
+        {error && <div className="error-message">{error}</div>}
+        
+        <button 
+          type="submit" 
+          disabled={isLoading || token.length !== 6}
+          className="verify-button"
+        >
+          {isLoading ? 'Verifying...' : 'Verify Code'}
+        </button>
+      </form>
+    </div>
   );
 };

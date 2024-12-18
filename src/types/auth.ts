@@ -5,19 +5,32 @@ export interface LoginCredentials {
     password: string;
 }
 
+// src/types/auth.ts
 export interface AuthResponse {
-    user: {
-        id: number;
-        username: string;
-        email: string;
-        is_mfa_enabled: boolean;
-    };
     requires_mfa: boolean;
+    session_id?: string;
+    user: User;
     tokens?: {
-        access: string;
-        refresh: string;
-    }
-}
+      access: string;
+      refresh: string;
+    };
+  }
+  
+  export interface User {
+    id: number;
+    username: string;
+    email: string;
+    is_mfa_enabled: boolean;
+  }
+  
+  export interface MFAVerificationRequest {
+    token: string;
+    session_id: string;
+    device_info?: {
+      ip?: string;
+      user_agent?: string;
+    };
+  }
 
 export interface MFASetupResponse {
     qr_code: string;
