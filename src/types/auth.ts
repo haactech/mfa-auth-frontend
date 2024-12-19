@@ -45,3 +45,20 @@ export interface AuthState {
     sessionId?: string;
     user?: AuthResponse['user'];
 }
+
+export interface SignupCredentials {
+  username: string;
+  email: string;
+  password: string;
+  password_confirm: string;
+}
+
+export interface SignupResponse {
+  message: string;
+  username: string;
+  email: string;
+}
+
+export interface EmailVerificationResponse {
+  message: string;
+}

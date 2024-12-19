@@ -1,4 +1,4 @@
-import { AuthResponse, LoginCredentials, MFAVerificationRequest, MFASetupResponse } from "../types/auth";
+import { AuthResponse, LoginCredentials, MFAVerificationRequest, MFASetupResponse, SignupCredentials, SignupResponse, EmailVerificationResponse } from "../types/auth";
 
 const API_URL = "http://localhost:8000/api";
 
@@ -140,6 +140,38 @@ export const authService = {
         }
 
         return response.json();
+    },
+
+    async signup(credentials:SignupCredentials):Promise<SignupResponse> {
+        await fetchCsrfToken();
+
+        const signupResponse = await fetch(`${API_URL}/auth/signup/`,{
+            method:"POST",
+            headers: getHeaders(),
+            body: JSON.stringify(credentials),
+            credentials: "include"
+        })
+
+        if(!signupResponse.ok) {
+            const errorData = await signupResponse.json()
+            throw new Error(errorData.error || "Registration failed");
+        }
+
+        return signupResponse.json();
+    },
+
+    async verifyEmail(token:string):Promise<EmailVerificationResponse> {
+        const verificationResponse = await fetch(`${API_URL}/auth/verify-email/${token}/`,{
+            method: 'GET',
+            credentials:'include'
+        })
+
+        if(!verificationResponse.ok) {
+            const errorData = await verificationResponse.json();
+            throw new Error(errorData.error || "Email verification failed")
+        }
+        
+        return verificationResponse.json()
     },
 
     getToken(): string | null {
