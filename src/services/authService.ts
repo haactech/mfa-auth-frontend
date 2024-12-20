@@ -48,7 +48,6 @@ const saveTokens = (tokens: { access: string; refresh: string }) => {
 
 export const authService = {
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
-        // Obtener token CSRF
         await fetchCsrfToken();
         
         const response = await fetch(`${API_URL}/auth/login/`, {
@@ -65,11 +64,9 @@ export const authService = {
 
         const data = await response.json();
         
-        // Si no requiere MFA, guardar tokens
         if (!data.requires_mfa && data.tokens) {
             saveTokens(data.tokens);
         } else if (data.session_id) {
-            // Guardar session_id para verificación MFA
             localStorage.setItem('mfa_session_id', data.session_id);
         }
 
@@ -182,9 +179,25 @@ export const authService = {
         return !!this.getToken();
     },
 
-    logout(): void {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('mfa_session_id');
+    async logout(): Promise<void> {
+        try {
+            const response = await fetch(`${API_URL}/auth/logout/`, {
+                method: 'POST',
+                headers: getHeaders(true),
+                credentials: 'include'
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Logout failed');
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            // Limpiar storage incluso si la petición falla
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('mfa_session_id');
+        }
     }
 };

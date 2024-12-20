@@ -33,7 +33,7 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="login-form">
       <div className="form-group">
-        <label htmlFor="username">Username</label>
+        <label htmlFor="username">Nombre de usuario</label>
         <input
           type="text"
           id="username"
@@ -47,7 +47,7 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
         />
       </div>
       <div className="form-group">
-        <label htmlFor="password">Password</label>
+        <label htmlFor="password">Contraseña</label>
         <input
           type="password"
           id="password"
@@ -62,7 +62,7 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
       </div>
       {error && <div className="error-message">{error}</div>}
       <button type="submit" disabled={isLoading}>
-        {isLoading ? 'Logging in...' : 'Login'}
+        {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
       </button>
     </form>
   );

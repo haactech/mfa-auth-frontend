@@ -31,11 +31,12 @@ function App() {
   const [verificationToken, setVerificationToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    if (token) {
-      setVerificationToken(token);
-      window.history.replaceState({}, document.title, window.location.pathname);
+    const pathSegments = window.location.pathname.split('/');
+    const verifyEmailIndex = pathSegments.indexOf('verify-email');
+    
+    if (verifyEmailIndex !== -1 && pathSegments[verifyEmailIndex + 1]) {
+      setVerificationToken(pathSegments[verifyEmailIndex + 1]);
+      window.history.replaceState({}, document.title, '/');
     }
   }, []);
 
@@ -49,8 +50,6 @@ function App() {
 
 
   const handleLoginSuccess = (response: AuthResponse) => {
-    console.log('Login response:', response);
-    console.log('Tokens before setState:', localStorage.getItem('access_token'));
     if (response.requires_mfa) {
       setAuthState({
         isAuthenticated: false,
@@ -115,10 +114,10 @@ function App() {
     if (authState.isAuthenticated) {
       return (
         <div className="welcome-container">
-          <h2>Welcome, {authState.user?.username}!</h2>
+          <h2>¡Bienveido a creze auth, {authState.user?.username}!</h2>
           {!authState.user?.is_mfa_enabled && !authState.showMFASetup && (
             <div className="mfa-setup-prompt">
-              <p>Your account is not secured with 2FA.</p>
+              <p>Tu cuenta no tiene doble factor activado.</p>
               <button
                 onClick={() => setAuthState(prev => ({
                   ...prev,
@@ -164,7 +163,6 @@ function App() {
     if (authState.requiresMFA) {
       return (
         <div className="mfa-container">
-          <h2>Two-Factor Authentication</h2>
           <MFAVerification
             onVerificationSuccess={handleMFASuccess}
           />
@@ -186,27 +184,26 @@ function App() {
     if (signupState.isSigningUp) {
       return (
         <div className="signup-container">
-          <h2>Create Account</h2>
+          <h2>Crear una cuenta</h2>
           <SignupForm onSignupSuccess={handleSignupSuccess} />
           <p className="auth-switch">
-            Already have an account?{' '}
+            ¿Ya tienes una cuenta?{' '}
             <button onClick={handleBackToLogin} className="link-button">
-              Log in
+              Iniciar sesión
             </button>
           </p>
         </div>
       );
     }
 
-    // Formulario de login por defecto
     return (
       <div className="login-container">
-        <h2>Login</h2>
+        <h2>Inicio de sesión</h2>
         <LoginForm onLoginSuccess={handleLoginSuccess} />
         <p className="auth-switch">
-          Don't have an account?{' '}
+          ¿No tienes una cuenta?{' '}
           <button onClick={handleSignupClick} className="link-button">
-            Sign up
+             Registrate
           </button>
         </p>
       </div>
@@ -215,9 +212,6 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>MFA Authentication Demo</h1>
-      </header>
       <main className="app-main">
         {renderAuthContent()}
       </main>

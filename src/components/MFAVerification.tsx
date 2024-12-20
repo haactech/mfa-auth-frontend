@@ -28,8 +28,8 @@ export const MFAVerification = ({ onVerificationSuccess }: MFAVerificationProps)
 
   return (
     <div className="mfa-verification-container">
-      <h2>Two-Factor Authentication Required</h2>
-      <p>Please enter the verification code from your authenticator app.</p>
+      <h2>Doble factor de autenticación obligatorio</h2>
+      <p>Por favor ingresa el código de verificación de tu aplicación de autenticación.</p>
       
       <form onSubmit={handleSubmit} className="mfa-form">
         <div className="form-group">
@@ -40,7 +40,7 @@ export const MFAVerification = ({ onVerificationSuccess }: MFAVerificationProps)
             maxLength={6}
             pattern="\d{6}"
             required
-            placeholder="Enter 6-digit code"
+            placeholder="Ingresa tu código de 6 digitos"
             disabled={isLoading}
             className="verification-input"
           />
@@ -53,7 +53,7 @@ export const MFAVerification = ({ onVerificationSuccess }: MFAVerificationProps)
           disabled={isLoading || token.length !== 6}
           className="verify-button"
         >
-          {isLoading ? 'Verifying...' : 'Verify Code'}
+          {isLoading ? 'Verificando...' : 'Verificar código'}
         </button>
       </form>
     </div>

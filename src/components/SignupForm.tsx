@@ -25,6 +25,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
             const signupServiceResponse = await authService.signup(credentials)
             onSignupSuccess(signupServiceResponse.email)
         } catch (error) {
+          console.log("error", error)
             setError(error instanceof Error ? error.message : 'Registration failed');
         } finally {
             setIsLoading(false)
@@ -34,7 +35,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
     return (
         <form onSubmit={handleSubmit} className="signup-form">
         <div className="form-group">
-          <label htmlFor="username">Username</label>
+          <label htmlFor="username">Nombre de usuario</label>
           <input
             type="text"
             id="username"
@@ -64,7 +65,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
         </div>
   
         <div className="form-group">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Contraseña </label>
           <input
             type="password"
             id="password"
@@ -77,12 +78,12 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
             disabled={isLoading}
           />
           <small className="form-help">
-            Password must contain at least 8 characters, including letters, numbers and special characters
+          La contraseña debe contener al menos 8 caracteres, incluyendo letras, números y caracteres especiales.
           </small>
         </div>
   
         <div className="form-group">
-          <label htmlFor="password_confirm">Confirm Password</label>
+          <label htmlFor="password_confirm">Confirmar Password</label>
           <input
             type="password"
             id="password_confirm"
@@ -99,7 +100,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
         {error && <div className="error-message">{error}</div>}
         
         <button type="submit" disabled={isLoading} className="submit-button">
-          {isLoading ? 'Creating Account...' : 'Sign Up'}
+          {isLoading ? 'Creando tu cuenta...' : 'Registrarme'}
         </button>
       </form>
   
