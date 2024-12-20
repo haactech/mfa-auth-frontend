@@ -6,7 +6,10 @@ interface MFASetupProps {
   onSetupCancel: () => void;
 }
 
-export const MFASetup: React.FC<MFASetupProps> = ({ onSetupComplete, onSetupCancel }) => {
+export const MFASetup: React.FC<MFASetupProps> = ({ 
+  onSetupComplete, 
+  onSetupCancel 
+}) => {
   const [setupData, setSetupData] = useState<{
     qr_code: string;
     manual_entry_key: string;
@@ -16,6 +19,8 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onSetupComplete, onSetupCanc
   const [showManualKey, setShowManualKey] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
+  const [setupComplete, setSetupComplete] = useState(false);
 
   useEffect(() => {
     const fetchSetupData = async () => {
@@ -23,7 +28,7 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onSetupComplete, onSetupCanc
         const response = await authService.setupMFA();
         setSetupData(response);
       } catch (err) {
-        setError('Failed to initialize MFA setup');
+        setError(err instanceof Error ? err.message : 'Failed to initialize MFA setup');
       } finally {
         setIsLoading(false);
       }
@@ -38,21 +43,20 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onSetupComplete, onSetupCanc
     setIsVerifying(true);
 
     try {
-      const isVerified = await authService.verifyMFA(verificationCode);
-      if (isVerified) {
-        onSetupComplete();
-      } else {
-        setError('Invalid verification code');
+      const response = await authService.verifyMFASetup(verificationCode);
+      if (response.is_verified) {
+        setBackupCodes(response.backup_codes || []);
+        setSetupComplete(true);
       }
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Verification failed. Please try again.');
-      }
+      setError(err instanceof Error ? err.message : 'Verification failed');
     } finally {
       setIsVerifying(false);
     }
+  };
+
+  const handleComplete = () => {
+    onSetupComplete();
   };
 
   if (isLoading) {
@@ -61,6 +65,31 @@ export const MFASetup: React.FC<MFASetupProps> = ({ onSetupComplete, onSetupCanc
 
   if (!setupData) {
     return <div className="mfa-setup-error">Failed to load MFA setup</div>;
+  }
+
+  if (setupComplete) {
+    return (
+      <div className="mfa-setup-success">
+        <h3>MFA Setup Complete!</h3>
+        <div className="backup-codes-container">
+          <p>Please save these backup codes in a secure location:</p>
+          <div className="backup-codes-grid">
+            {backupCodes.map((code, index) => (
+              <div key={index} className="backup-code">{code}</div>
+            ))}
+          </div>
+          <p className="warning">
+            These codes will not be shown again. Store them safely!
+          </p>
+        </div>
+        <button 
+          onClick={handleComplete}
+          className="complete-button"
+        >
+          Complete Setup
+        </button>
+      </div>
+    );
   }
 
   return (

@@ -1,4 +1,4 @@
-import { AuthResponse, LoginCredentials, MFAVerificationRequest, MFASetupResponse, SignupCredentials, SignupResponse, EmailVerificationResponse } from "../types/auth";
+import { AuthResponse, LoginCredentials, MFAVerificationRequest, MFASetupResponse, SignupCredentials, SignupResponse, EmailVerificationResponse, MFAVerificationResponse } from "../types/auth";
 
 const API_URL = "http://localhost:8000/api";
 
@@ -126,10 +126,10 @@ export const authService = {
         return response.json();
     },
 
-    async verifyMFASetup(verificationCode: string): Promise<MFASetupResponse> {
+    async verifyMFASetup(verificationCode: string): Promise<MFAVerificationResponse> {
         const response = await fetch(`${API_URL}/auth/setup-mfa/`, {
             method: "POST",
-            headers: getHeaders(true),
+            headers: getHeaders(true), 
             body: JSON.stringify({ verification_code: verificationCode }),
             credentials: 'include'
         });
@@ -170,7 +170,7 @@ export const authService = {
             const errorData = await verificationResponse.json();
             throw new Error(errorData.error || "Email verification failed")
         }
-        
+
         return verificationResponse.json()
     },
 

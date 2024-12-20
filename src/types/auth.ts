@@ -1,11 +1,9 @@
-// src/types/auth.ts
 
 export interface LoginCredentials {
     username: string;
     password: string;
 }
 
-// src/types/auth.ts
 export interface AuthResponse {
     requires_mfa: boolean;
     session_id?: string;
@@ -61,4 +59,10 @@ export interface SignupResponse {
 
 export interface EmailVerificationResponse {
   message: string;
+}
+export interface MFAVerificationResponse {
+  is_verified: boolean;
+  backup_codes?: string[];
+  message: string;
+  warning?: string;
 }
