@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { authService } from '../services/authService';
+import './MFASetup.css'
 
 interface MFASetupProps {
   onSetupComplete: () => void;
