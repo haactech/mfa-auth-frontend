@@ -1,6 +1,7 @@
 import { AuthResponse, LoginCredentials, MFAVerificationRequest, MFASetupResponse, SignupCredentials, SignupResponse, EmailVerificationResponse, MFAVerificationResponse } from "../types/auth";
+import config from "../config";
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = config.API_URL;
 
 const getCsrfToken = (): string | null => {
     const name = 'csrftoken';
