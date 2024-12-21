@@ -23,7 +23,8 @@ export const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
     try {
       const response = await authService.login(credentials);
       onLoginSuccess(response);
-    } catch (err) {
+    } catch (error) {
+      console.error(error)
       setError('Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
